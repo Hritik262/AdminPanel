@@ -2,12 +2,18 @@ import jwt from 'jsonwebtoken';
 import Role from '../models/role.js'; // Import the Role model
 import User from '../models/user.js'; // Import the User model
 export const authMiddleware = (req, res, next) => {
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'No token provided' });
+  const token = req.headers.authorization?.split(' ')[1]; // Extract token from Authorization header
+
+  if (!token) {
+    return res.status(401).json({ message: 'Authentication token required' });
+  }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(403).json({ message: 'Failed to authenticate token' });
-    req.user = decoded;
+    if (err) {
+      return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+
+    req.user = decoded; // Attach decoded token to request
     next();
   });
 };

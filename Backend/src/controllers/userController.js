@@ -63,26 +63,25 @@ export const getUsers = async (req, res) => {
 // Get user by ID (accessible by all users)
 export const getUserById = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    // Remove any leading/trailing whitespace or newline characters from the UUID
+    const userId = req.params.id.trim();
+
+    // Fetch user by ID
+    const user = await User.findByPk(userId);
+
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ message: 'User not found' });
     }
-    res.status(200).json({
-      success: true,
-      message: 'User retrieved successfully',
-      data: user,
-    });
+
+    // Respond with user details (excluding password for security reasons)
+    const { password, ...userDetails } = user.dataValues;
+    res.status(200).json(userDetails);
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to retrieve user',
-      error: error.message,
-    });
+    console.error('Error fetching user by ID:', error);
+    res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 // Update user by ID (Admin only)
 export const updateUser = async (req, res) => {
