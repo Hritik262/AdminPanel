@@ -36,11 +36,14 @@ export const signup = async (req, res) => {
       });
     }
 
+    // Hash the password before saving it
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Create the new user with the "admin" role
     const newUser = await User.create({
       username,
       email,
-      password, // Ensure password is hashed before saving
+      password: hashedPassword, // Save the hashed password
       roleId,
     });
 
