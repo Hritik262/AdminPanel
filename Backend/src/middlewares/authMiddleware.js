@@ -48,7 +48,62 @@ export const adminMiddleware = async (req, res, next) => {
   }
 };
 
-export const managerMiddleware = (req, res, next) => {
-  if (req.user.role !== 'Admin' && req.user.role !== 'Manager') return res.status(403).json({ message: 'Access denied' });
-  next();
+// export const managerMiddleware = async(req, res, next) => {
+//   try {
+//     const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+//     console.log('Decoded Token:', decoded);
+
+//     const user = await User.findByPk(decoded.userId);
+//     console.log('Fetched User:', user);
+
+//     if (!user) {
+//       return res.status(401).json({ message: 'Access denied' });
+//     }
+
+//     const userRole = await Role.findByPk(user.roleId);
+//     console.log('Fetched User Role:', userRole);
+
+//     // Check if the user is an admin or manager
+//     if (userRole.name === 'admin' || userRole.name === 'manager') {
+//       next(); // Grant access
+//     } else {
+//       return res.status(403).json({ message: 'Access denied' });
+//     }
+//   } catch (error) {
+//     console.error('Error in adminManagerMiddleware:', error);
+//     return res.status(500).json({ message: 'Server error', error });
+//   }
+// };
+export const adminManagerMiddleware = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const token = authHeader.split(' ')[1]; // Extract token from Authorization header
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Decoded Token:', decoded);
+
+    const user = await User.findByPk(decoded.userId);
+    console.log('Fetched User:', user);
+
+    if (!user) {
+      return res.status(401).json({ message: 'Access denied' });
+    }
+
+    const userRole = await Role.findByPk(user.roleId);
+    console.log('Fetched User Role:', userRole);
+
+    if (userRole.name === 'admin' || userRole.name === 'manager') {
+      next();
+    } else {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+  } catch (error) {
+    console.error('Error in adminManagerMiddleware:', error);
+    return res.status(500).json({ message: 'Server error', error });
+  }
 };
+
+
