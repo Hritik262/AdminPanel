@@ -1,25 +1,46 @@
 import User from '../models/user.js';
 import Role from '../models/role.js';
 
-// Create a new user
+
 // Create a new user (Admin only)
+import bcrypt from 'bcrypt'; // Ensure bcrypt is imported
+
 export const createUser = async (req, res) => {
   try {
-    const { username, password, email, roleId } = req.body;
-    const user = await User.create({ username, password, email, roleId });
-    res.status(201).json({
-      success: true,
-      message: 'User created successfully',
-      data: user,
+    const { username, email, password, role } = req.body;
+
+    let userRole;
+    if (role) {
+      // Check if the provided role exists in the database
+      userRole = await Role.findOne({ where: { name: role } });
+      if (!userRole) {
+        // Optionally, create the role if it doesn't exist
+        userRole = await Role.create({ name: role });
+      }
+    } else {
+      // Assign default "user" role if no role is provided
+      userRole = await Role.findOne({ where: { name: 'user' } });
+    }
+
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create the new user
+    const newUser = await User.create({
+      username,
+      email,
+      password: hashedPassword, // Save the hashed password
+      roleId: userRole.id
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'User creation failed',
-      error: error.message,
-    });
+
+    res.status(201).json({ message: 'User created successfully', user: newUser });
+  } catch (err) {
+    console.error('Error creating user:', err);
+    res.status(500).json({ message: 'Server error', error: err });
   }
 };
+
+
 
 // Get all users (Admin and Manager)
 export const getUsers = async (req, res) => {
