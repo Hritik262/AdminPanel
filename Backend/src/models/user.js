@@ -19,6 +19,13 @@ const User = sequelize.define('User', {
   password: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  roleId: {  // Add this field
+    type: DataTypes.UUID,
+    references: {
+      model: 'Roles',
+      key: 'id',
+    }
   }
 });
 

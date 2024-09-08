@@ -3,36 +3,54 @@ import Role from '../models/role.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+
 // Signup function to create an Admin user (one-time setup)
 export const signup = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
+    // Check if the "admin" role exists, create if not
+    let adminRole = await Role.findOne({ where: { name: 'admin' } });
+    if (!adminRole) {
+      adminRole = await Role.create({ name: 'admin' }); // Create admin role if it doesn't exist
+    }
+
+    // Check if the "user" role exists, create if not
+    let userRole = await Role.findOne({ where: { name: 'user' } });
+    if (!userRole) {
+      userRole = await Role.create({ name: 'user' }); // Create user role if it doesn't exist
+    }
+
     // Check if an admin already exists
-    const adminCount = await User.count({ where: { roleId: 'admin' } });
-    if (adminCount > 0) {
-      return res.status(400).json({ message: 'Admin already exists' });
+    const adminCount = await User.count({ where: { roleId: adminRole.id } });
+
+    let roleId;
+
+    if (adminCount === 0) {
+      // No admin exists, assign this user the "admin" role
+      roleId = adminRole.id;
+    } else {
+      // Admin already exists, prevent new admin signup
+      return res.status(400).json({
+        message: 'Admin already exists. Only one admin is allowed.'
+      });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const role = await Role.findOne({ where: { name: 'Admin' } });
-    if (!role) {
-      return res.status(500).json({ message: 'Admin role not found' });
-    }
-
+    // Create the new user with the "admin" role
     const newUser = await User.create({
       username,
       email,
-      password: hashedPassword,
-      roleId: role.id
+      password, // Ensure password is hashed before saving
+      roleId,
     });
 
-    res.status(201).json({ message: 'Admin created successfully', user: newUser });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    res.status(201).json({ message: 'Admin registered successfully', user: newUser });
+  } catch (err) {
+    console.error('Error during signup:', err);
+    res.status(500).json({ message: 'Server error', error: err });
   }
 };
+
 
 // Login function to authenticate users and issue JWT tokens
 export const login = async (req, res) => {

@@ -5,7 +5,7 @@ import { validateSignup, validateLogin, validateRegisterUser } from '../middlewa
 
 const router = express.Router();
 
-router.post('/signup', validateSignup, adminMiddleware, signup); // Admin only
+router.post('/signup', validateSignup, signup); // Admin only
 router.post('/login', validateLogin, login);
 router.post('/register', adminMiddleware, validateRegisterUser, registerUser); // Admin only
 
