@@ -14,28 +14,37 @@ export const authMiddleware = (req, res, next) => {
 
 export const adminMiddleware = async (req, res, next) => {
   try {
-    const userId = req.user.id; // Assuming you get the user ID from the request (JWT)
+    const token = req.headers.authorization?.split(' ')[1]; // Assumes 'Bearer token'
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
 
-    // Fetch the UUID for the 'admin' role from the Roles table
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Decoded Token:', decoded); // Debugging
+
+    // Fetch the user based on the decoded token
+    const user = await User.findByPk(decoded.userId);
+    console.log('Fetched User:', user); // Debugging
+
+    // If the user does not exist, deny access
+    if (!user) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    // Fetch the admin role ID
     const adminRole = await Role.findOne({ where: { name: 'admin' } });
-    
-    if (!adminRole) {
-      return res.status(403).json({ message: 'Admin role not found' });
-    }
 
-    // Fetch the user by ID
-    const user = await User.findByPk(userId);
-
-    // Check if the user's roleId matches the admin role's UUID
+    // If the role does not match 'admin', deny access
     if (user.roleId !== adminRole.id) {
-      return res.status(403).json({ message: 'Forbidden: Admins only' });
+      return res.status(403).json({ message: 'Access denied' });
     }
 
-    // If the user has the admin role, proceed to the next middleware or route
+    // If the user is admin, proceed to the next middleware/route
+    req.user = user; // Attach user to request object
     next();
-  } catch (err) {
-    console.error('Error in adminMiddleware:', err);
-    return res.status(500).json({ message: 'Server error', error: err });
+  } catch (error) {
+    console.error('Error in adminMiddleware:', error);
+    res.status(500).json({ message: 'Server error', error });
   }
 };
 

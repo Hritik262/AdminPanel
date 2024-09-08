@@ -7,6 +7,6 @@ const router = express.Router();
 
 router.post('/signup', validateSignup, signup); // Admin only
 router.post('/login', validateLogin, login);
-router.post('/register', adminMiddleware, validateRegisterUser, registerUser); // Admin only
+router.post('/register', adminMiddleware,  registerUser); // Admin only
 
 export default router;
