@@ -1,4 +1,4 @@
-import { AuditLog } from '../models/auditLog.js';
+import { AuditLog } from "../models/auditLog.js";
 
 export const logAudit = async (action, performedBy, targetResource) => {
   try {
@@ -6,9 +6,9 @@ export const logAudit = async (action, performedBy, targetResource) => {
       action,
       performedBy,
       performedAt: new Date(),
-      targetResource
+      targetResource,
     });
   } catch (err) {
-    console.error('Failed to log audit action:', err);
+    console.error("Failed to log audit action:", err);
   }
 };

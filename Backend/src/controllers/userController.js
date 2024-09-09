@@ -1,9 +1,7 @@
-import User from '../models/user.js';
-import Role from '../models/role.js';
-import { Op } from 'sequelize';
-
-// Create a new user (Admin only)
-import bcrypt from 'bcrypt'; // Ensure bcrypt is imported
+import User from "../models/user.js";
+import Role from "../models/role.js";
+import { Op } from "sequelize";
+import bcrypt from "bcrypt";
 
 export const createUser = async (req, res) => {
   try {
@@ -19,7 +17,7 @@ export const createUser = async (req, res) => {
       }
     } else {
       // Assign default "user" role if no role is provided
-      userRole = await Role.findOne({ where: { name: 'user' } });
+      userRole = await Role.findOne({ where: { name: "user" } });
     }
 
     // Hash the password before saving
@@ -29,14 +27,15 @@ export const createUser = async (req, res) => {
     const newUser = await User.create({
       username,
       email,
-      password: hashedPassword, // Save the hashed password
-      roleId: userRole.id
+      password: hashedPassword,
+      roleId: userRole.id,
     });
 
-    res.status(201).json({ message: 'User created successfully', user: newUser });
+    res
+      .status(201)
+      .json({ message: "User created successfully", user: newUser });
   } catch (err) {
-    console.error('Error creating user:', err);
-    res.status(500).json({ message: 'Server error', error: err });
+    res.status(500).json({ message: "Server error", error: err });
   }
 };
 
@@ -46,13 +45,13 @@ export const getUsers = async (req, res) => {
     const users = await User.findAll();
     res.status(200).json({
       success: true,
-      message: 'Users retrieved successfully',
+      message: "Users retrieved successfully",
       data: users,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to get users',
+      message: "Failed to get users",
       error: error.message,
     });
   }
@@ -61,22 +60,19 @@ export const getUsers = async (req, res) => {
 // Get user by ID (accessible by all users)
 export const getUserById = async (req, res) => {
   try {
-    // Remove any leading/trailing whitespace or newline characters from the UUID
     const userId = req.params.id.trim();
 
-    // Fetch user by ID
     const user = await User.findByPk(userId);
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // Respond with user details (excluding password for security reasons)
+    // Respond with user details
     const { password, ...userDetails } = user.dataValues;
     res.status(200).json(userDetails);
   } catch (error) {
-    console.error('Error fetching user by ID:', error);
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
@@ -86,10 +82,9 @@ export const updateUserById = async (req, res) => {
     const userId = req.params.id.trim();
     const { username, email, password } = req.body;
 
-    // Check if user exists
     const user = await User.findByPk(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Prepare the updated data
@@ -103,10 +98,17 @@ export const updateUserById = async (req, res) => {
     await user.update(updatedData);
 
     // Respond with updated user details
-    res.status(200).json({ message: 'User updated successfully', user: user });
+    res.status(200)
+      .json({ 
+        message: "User updated successfully", 
+        user: user 
+    });
   } catch (error) {
-    console.error('Error updating user by ID:', error);
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500)
+    .json({
+       message: "Server error", 
+       error 
+    });
   }
 };
 
@@ -117,19 +119,20 @@ export const deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found',
+        message: "User not found",
       });
     }
-    await user.update({ deletedAt: new Date() }); // Soft delete
+    // Soft delete the user
+    await user.update({ deletedAt: new Date() }); 
     res.status(200).json({
       success: true,
-      message: 'User soft deleted successfully',
+      message: "User soft deleted successfully",
       data: user,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'User deletion failed',
+      message: "User deletion failed",
       error: error.message,
     });
   }
@@ -141,21 +144,32 @@ export const permanentDeleteUser = async (req, res) => {
     const userId = req.params.id;
 
     // Find the user that is soft-deleted
-    const user = await User.findOne({ where: { id: userId, deletedAt: { [Op.not]: null } } });
-
-    console.log('Fetched User:', user); // Log fetched user
+    const user = await User.findOne({
+      where: { id: userId, deletedAt: { [Op.not]: null } },
+    });
 
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found or not deleted' });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found or not deleted" });
     }
 
     // Permanently delete the user
     await user.destroy({ force: true });
 
-    res.status(200).json({ success: true, message: 'User permanently deleted successfully' });
+    res.status(200).json({
+      success: true,
+      message: "User permanently deleted successfully",
+    });
   } catch (error) {
-    console.error('Error permanently deleting user:', error);
-    res.status(500).json({ success: false, message: 'Server error', error });
+    console.error("Error permanently deleting user:", error);
+    res
+    .status(500)
+    .json({ 
+      success: false, 
+      message: "Server error", 
+      error 
+    });
   }
 };
 
@@ -164,59 +178,63 @@ export const restoreUser = async (req, res) => {
   try {
     const userId = req.params.id.trim();
 
-    // Attempt to restore the user
+    // restore the user
     const result = await User.restore({
-      where: { id: userId, deletedAt: { [Op.ne]: null } }
+      where: { id: userId, deletedAt: { [Op.ne]: null } },
     });
 
-    if (result[0] === 0) { // Check if any rows were affected
+    if (result[0] === 0) {
+      // Check if any rows were affected
       return res.status(404).json({
         success: false,
-        message: 'User not found or not deleted'
+        message: "User not found or not deleted",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'User restored successfully'
+      message: "User restored successfully",
     });
   } catch (error) {
-    console.error('Error restoring user:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error
+      message: "Server error",
+      error,
     });
   }
 };
-
 
 // Assign role to user (Admin only)
 export const assignRole = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { roleId } = req.body; // Assuming the role ID is provided in the request body
-
+    const { roleId } = req.body; 
     // Find the user
     const user = await User.findByPk(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Find the role
     const role = await Role.findByPk(roleId);
     if (!role) {
-      return res.status(404).json({ success: false, message: 'Role not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Role not found" });
     }
 
     // Assign the role to the user
     user.roleId = roleId;
     await user.save();
 
-    res.status(200).json({ success: true, message: 'Role assigned successfully', user });
+    res
+      .status(200)
+      .json({ success: true, message: "Role assigned successfully", user });
   } catch (error) {
-    console.error('Error assigning role to user:', error);
-    res.status(500).json({ success: false, message: 'Server error', error });
+    console.error("Error assigning role to user:", error);
+    res.status(500).json({ success: false, message: "Server error", error });
   }
 };
 
@@ -225,18 +243,19 @@ export const revokeRole = async (req, res) => {
   try {
     const userId = req.params.id.trim();
 
-    // Check if the user exists
     const user = await User.findByPk(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    // Revoke the role by setting roleId to null
     await user.update({ roleId: null });
 
-    res.status(200).json({ success: true, message: 'Role revoked successfully' });
+    res
+      .status(200)
+      .json({ success: true, message: "Role revoked successfully" });
   } catch (error) {
-    console.error('Error revoking user role:', error);
-    res.status(500).json({ success: false, message: 'Server error', error });
+    res.status(500).json({ success: false, message: "Server error", error });
   }
 };

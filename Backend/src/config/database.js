@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
-// Load environment variables from .env file
 dotenv.config();
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
@@ -10,10 +9,10 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false, // This is for SSL connection, change as per your provider's requirements
+      rejectUnauthorized: false, 
     },
   },
-  logging: false, // Disable Sequelize logging (optional)
+  logging: false, 
 });
 
 // Test the database connection

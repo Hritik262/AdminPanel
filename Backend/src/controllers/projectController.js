@@ -1,27 +1,23 @@
-import Project from '../models/project.js';
-import User from '../models/user.js'; 
-import jwt from 'jsonwebtoken';
-
+import Project from "../models/project.js";
+import User from "../models/user.js";
+import jwt from "jsonwebtoken";
 
 // Create a new project
 export const createProject = async (req, res) => {
   try {
     const { name, description } = req.body;
 
-    // Use the user ID from the token, if necessary
-    // const createdBy = req.user.id;
-
-    // Create the new project without createdBy
     const newProject = await Project.create({
       name,
       description,
-      // createdBy // Remove this line
     });
 
-    res.status(201).json({ message: 'Project created successfully', project: newProject });
+    res
+      .status(201)
+      .json({ message: "Project created successfully", project: newProject });
   } catch (err) {
-    console.error('Error creating project:', err);
-    res.status(500).json({ message: 'Server error', error: err });
+    console.error("Error creating project:", err);
+    res.status(500).json({ message: "Server error", error: err });
   }
 };
 
@@ -31,7 +27,7 @@ export const getProjects = async (req, res) => {
     const projects = await Project.findAll();
     res.status(200).json(projects);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
@@ -41,11 +37,11 @@ export const getProjectById = async (req, res) => {
     const { id } = req.params;
     const project = await Project.findByPk(id);
     if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
+      return res.status(404).json({ message: "Project not found" });
     }
     res.status(200).json(project);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
@@ -56,68 +52,64 @@ export const updateProject = async (req, res) => {
     const { name, description } = req.body;
     const project = await Project.findByPk(id);
     if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
+      return res.status(404).json({ message: "Project not found" });
     }
     project.name = name || project.name;
     project.description = description || project.description;
     await project.save();
-    res.status(200).json({ message: 'Project updated successfully', project });
+    res.status(200).json({ message: "Project updated successfully", project });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
 // Soft delete a project
 export const deleteProject = async (req, res) => {
   try {
-    const { id } = req.params; // Get project ID from request params
+    const { id } = req.params;
 
     // Fetch the project by ID
     const project = await Project.findByPk(id);
 
-    // If the project is not found, send a 404 response
     if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
+      return res.status(404).json({ message: "Project not found" });
     }
 
     // Soft delete the project
     await project.destroy();
 
-    res.status(200).json({ message: 'Project soft deleted successfully' });
+    res.status(200).json({ message: "Project soft deleted successfully" });
   } catch (err) {
-    console.error('Error deleting project:', err);
-    res.status(500).json({ message: 'Server error', error: err });
+    console.error("Error deleting project:", err);
+    res.status(500).json({ message: "Server error", error: err });
   }
 };
 
 // Restore a soft-deleted project
 export const restoreProject = async (req, res) => {
   try {
-    const { id } = req.params; // Get project ID from request params
-    console.log(`Attempting to restore project with ID: ${id}`); // Debugging
+    const { id } = req.params; 
 
     // Fetch the project by ID, including soft-deleted ones
     const project = await Project.findByPk(id, { paranoid: false });
 
-    console.log('Fetched Project:', project); // Debugging
-
-    // If the project is not found, send a 404 response
+    
     if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
+      return res.status(404).json({ message: "Project not found" });
     }
 
-    // If the project is not soft-deleted, send a 400 response
+    // project is not soft-deleted
     if (!project.deletedAt) {
-      return res.status(400).json({ message: 'Project is not soft-deleted' });
+      return res.status(400).json({ message: "Project is not soft-deleted" });
     }
 
     // Restore the project
     await project.restore();
 
-    res.status(200).json({ message: 'Project restored successfully' });
+    res.status(200).json({ message: "Project restored successfully" });
   } catch (err) {
-    console.error('Error restoring project:', err);
-    res.status(500).json({ message: 'Server error', error: err });
+    console.error("Error restoring project:", err);
+    res.status(500).json({ message: "Server error", error: err });
   }
 };
 
@@ -128,18 +120,18 @@ export const permanentDeleteProject = async (req, res) => {
     if (!project) {
       return res.status(404).json({
         success: false,
-        message: 'Project not found',
+        message: "Project not found",
       });
     }
     await project.destroy({ force: true }); // Permanently delete
     res.status(200).json({
       success: true,
-      message: 'Project permanently deleted',
+      message: "Project permanently deleted",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to permanently delete project',
+      message: "Failed to permanently delete project",
       error: error.message,
     });
   }
