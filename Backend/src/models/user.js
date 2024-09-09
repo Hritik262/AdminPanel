@@ -20,13 +20,20 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  roleId: {  // Add this field
+  roleId: {
     type: DataTypes.UUID,
     references: {
       model: 'Roles',
       key: 'id',
     }
+  },
+  deletedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    defaultValue: null
   }
+}, {
+  paranoid: true // Enable soft delete
 });
 
 export default User;

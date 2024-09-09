@@ -1,6 +1,6 @@
 import User from '../models/user.js';
 import Role from '../models/role.js';
-
+import { Op } from 'sequelize';
 
 // Create a new user (Admin only)
 import bcrypt from 'bcrypt'; // Ensure bcrypt is imported
@@ -162,27 +162,34 @@ export const permanentDeleteUser = async (req, res) => {
 // Restore user (Admin only)
 export const restoreUser = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id, { paranoid: false });
-    if (!user || !user.deletedAt) {
+    const userId = req.params.id.trim();
+
+    // Attempt to restore the user
+    const result = await User.restore({
+      where: { id: userId, deletedAt: { [Op.ne]: null } }
+    });
+
+    if (result[0] === 0) { // Check if any rows were affected
       return res.status(404).json({
         success: false,
-        message: 'User not found or not deleted',
+        message: 'User not found or not deleted'
       });
     }
-    await user.restore();
+
     res.status(200).json({
       success: true,
-      message: 'User restored successfully',
-      data: user,
+      message: 'User restored successfully'
     });
   } catch (error) {
+    console.error('Error restoring user:', error);
     res.status(500).json({
       success: false,
-      message: 'User restore failed',
-      error: error.message,
+      message: 'Server error',
+      error
     });
   }
 };
+
 
 // Assign role to user (Admin only)
 export const assignRole = async (req, res) => {
