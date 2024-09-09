@@ -5,24 +5,26 @@ const AuditLog = sequelize.define('AuditLog', {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
-    primaryKey: true,
+    primaryKey: true
   },
   action: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: false
   },
   performedBy: {
-    type: DataTypes.UUID,
-    allowNull: false,
+    type: DataTypes.STRING, 
+    allowNull: false
   },
   performedAt: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+    allowNull: false
   },
   targetResource: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
+    type: DataTypes.STRING, // Assuming this is a resource ID, adjust type if necessary
+    allowNull: false
+  }
+}, {
+  timestamps: false // Assuming `performedAt` will be manually set
 });
 
 export { AuditLog }; // Named export

@@ -14,8 +14,14 @@ const Project = sequelize.define('Project', {
   description: {
     type: DataTypes.STRING,
     allowNull: true
+  },
+  deletedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    defaultValue: null
   }
+}, {
+  paranoid: true // Enable soft delete
 });
-
 
 export default Project;

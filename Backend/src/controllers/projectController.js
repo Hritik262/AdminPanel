@@ -70,35 +70,54 @@ export const updateProject = async (req, res) => {
 // Soft delete a project
 export const deleteProject = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params; // Get project ID from request params
+
+    // Fetch the project by ID
     const project = await Project.findByPk(id);
+
+    // If the project is not found, send a 404 response
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
     }
-    project.deletedAt = new Date();
-    await project.save();
-    res.status(200).json({ message: 'Project deleted successfully', project });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+
+    // Soft delete the project
+    await project.destroy();
+
+    res.status(200).json({ message: 'Project soft deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting project:', err);
+    res.status(500).json({ message: 'Server error', error: err });
   }
 };
 
 // Restore a soft-deleted project
 export const restoreProject = async (req, res) => {
   try {
-    const { id } = req.params;
-    const project = await Project.findByPk(id);
+    const { id } = req.params; // Get project ID from request params
+    console.log(`Attempting to restore project with ID: ${id}`); // Debugging
+
+    // Fetch the project by ID, including soft-deleted ones
+    const project = await Project.findByPk(id, { paranoid: false });
+
+    console.log('Fetched Project:', project); // Debugging
+
+    // If the project is not found, send a 404 response
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
     }
+
+    // If the project is not soft-deleted, send a 400 response
     if (!project.deletedAt) {
-      return res.status(400).json({ message: 'Project is not deleted' });
+      return res.status(400).json({ message: 'Project is not soft-deleted' });
     }
-    project.deletedAt = null;
-    await project.save();
-    res.status(200).json({ message: 'Project restored successfully', project });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+
+    // Restore the project
+    await project.restore();
+
+    res.status(200).json({ message: 'Project restored successfully' });
+  } catch (err) {
+    console.error('Error restoring project:', err);
+    res.status(500).json({ message: 'Server error', error: err });
   }
 };
 
