@@ -138,24 +138,24 @@ export const deleteUser = async (req, res) => {
 // Permanently delete user (Admin only)
 export const permanentDeleteUser = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id, { paranoid: false });
+    const userId = req.params.id;
+
+    // Find the user that is soft-deleted
+    const user = await User.findOne({ where: { id: userId, deletedAt: { [Op.not]: null } } });
+
+    console.log('Fetched User:', user); // Log fetched user
+
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found or not deleted' });
     }
-    await user.destroy({ force: true }); // Permanently delete
-    res.status(200).json({
-      success: true,
-      message: 'User permanently deleted',
-    });
+
+    // Permanently delete the user
+    await user.destroy({ force: true });
+
+    res.status(200).json({ success: true, message: 'User permanently deleted successfully' });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to permanently delete user',
-      error: error.message,
-    });
+    console.error('Error permanently deleting user:', error);
+    res.status(500).json({ success: false, message: 'Server error', error });
   }
 };
 
@@ -194,52 +194,49 @@ export const restoreUser = async (req, res) => {
 // Assign role to user (Admin only)
 export const assignRole = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
-    const role = await Role.findByPk(req.body.roleId);
-    if (!user || !role) {
-      return res.status(404).json({
-        success: false,
-        message: 'User or role not found',
-      });
+    const userId = req.params.id;
+    const { roleId } = req.body; // Assuming the role ID is provided in the request body
+
+    // Find the user
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
-    user.roleId = role.id;
+
+    // Find the role
+    const role = await Role.findByPk(roleId);
+    if (!role) {
+      return res.status(404).json({ success: false, message: 'Role not found' });
+    }
+
+    // Assign the role to the user
+    user.roleId = roleId;
     await user.save();
-    res.status(200).json({
-      success: true,
-      message: 'Role assigned successfully',
-      data: user,
-    });
+
+    res.status(200).json({ success: true, message: 'Role assigned successfully', user });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Role assignment failed',
-      error: error.message,
-    });
+    console.error('Error assigning role to user:', error);
+    res.status(500).json({ success: false, message: 'Server error', error });
   }
 };
 
 // Revoke role from user (Admin only)
 export const revokeRole = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const userId = req.params.id.trim();
+
+    // Check if the user exists
+    const user = await User.findByPk(userId);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
-    user.roleId = null; // Remove role
-    await user.save();
-    res.status(200).json({
-      success: true,
-      message: 'Role revoked successfully',
-      data: user,
-    });
+
+    // Revoke the role by setting roleId to null
+    await user.update({ roleId: null });
+
+    res.status(200).json({ success: true, message: 'Role revoked successfully' });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Role revocation failed',
-      error: error.message,
-    });
+    console.error('Error revoking user role:', error);
+    res.status(500).json({ success: false, message: 'Server error', error });
   }
 };

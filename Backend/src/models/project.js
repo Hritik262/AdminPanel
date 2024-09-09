@@ -12,14 +12,10 @@ const Project = sequelize.define('Project', {
     allowNull: false
   },
   description: {
-    type: DataTypes.STRING
-  },
-  deletedAt: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING,
     allowNull: true
   }
-}, {
-  paranoid: true
 });
+
 
 export default Project;

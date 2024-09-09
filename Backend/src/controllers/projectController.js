@@ -1,13 +1,27 @@
 import Project from '../models/project.js';
+import User from '../models/user.js'; 
+import jwt from 'jsonwebtoken';
+
 
 // Create a new project
 export const createProject = async (req, res) => {
   try {
-    const { name, description, createdBy } = req.body;
-    const project = await Project.create({ name, description, createdBy });
-    res.status(201).json({ message: 'Project created successfully', project });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    const { name, description } = req.body;
+
+    // Use the user ID from the token, if necessary
+    // const createdBy = req.user.id;
+
+    // Create the new project without createdBy
+    const newProject = await Project.create({
+      name,
+      description,
+      // createdBy // Remove this line
+    });
+
+    res.status(201).json({ message: 'Project created successfully', project: newProject });
+  } catch (err) {
+    console.error('Error creating project:', err);
+    res.status(500).json({ message: 'Server error', error: err });
   }
 };
 
