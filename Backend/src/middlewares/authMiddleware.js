@@ -42,7 +42,7 @@ export const adminMiddleware = async (req, res, next) => {
 
     // If the role does not match 'admin', deny access
     if (user.roleId !== adminRole.id) {
-      return res.status(403).json({ message: 'Access denied' });
+      return res.status(403).json({ message: 'Access denied by admin middleware' });
     }
 
     // If the user is admin, proceed to the next middleware/route

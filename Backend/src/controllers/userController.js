@@ -40,8 +40,6 @@ export const createUser = async (req, res) => {
   }
 };
 
-
-
 // Get all users (Admin and Manager)
 export const getUsers = async (req, res) => {
   try {
@@ -82,33 +80,33 @@ export const getUserById = async (req, res) => {
   }
 };
 
-
 // Update user by ID (Admin only)
-export const updateUser = async (req, res) => {
+export const updateUserById = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const userId = req.params.id.trim();
+    const { username, email, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findByPk(userId);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ message: 'User not found' });
     }
-    const { username, email, roleId } = req.body;
-    user.username = username || user.username;
-    user.email = email || user.email;
-    user.roleId = roleId || user.roleId;
-    await user.save();
-    res.status(200).json({
-      success: true,
-      message: 'User updated successfully',
-      data: user,
-    });
+
+    // Prepare the updated data
+    const updatedData = {
+      username: username || user.username,
+      email: email || user.email,
+      password: password ? await bcrypt.hash(password, 10) : user.password,
+    };
+
+    // Update the user
+    await user.update(updatedData);
+
+    // Respond with updated user details
+    res.status(200).json({ message: 'User updated successfully', user: user });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'User update failed',
-      error: error.message,
-    });
+    console.error('Error updating user by ID:', error);
+    res.status(500).json({ message: 'Server error', error });
   }
 };
 
