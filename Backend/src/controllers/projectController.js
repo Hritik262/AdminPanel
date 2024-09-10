@@ -16,7 +16,6 @@ export const createProject = async (req, res) => {
       .status(201)
       .json({ message: "Project created successfully", project: newProject });
   } catch (err) {
-    console.error("Error creating project:", err);
     res.status(500).json({ message: "Server error", error: err });
   }
 };
@@ -68,7 +67,6 @@ export const deleteProject = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Fetch the project by ID
     const project = await Project.findByPk(id);
 
     if (!project) {
@@ -80,7 +78,6 @@ export const deleteProject = async (req, res) => {
 
     res.status(200).json({ message: "Project soft deleted successfully" });
   } catch (err) {
-    console.error("Error deleting project:", err);
     res.status(500).json({ message: "Server error", error: err });
   }
 };
@@ -88,12 +85,11 @@ export const deleteProject = async (req, res) => {
 // Restore a soft-deleted project
 export const restoreProject = async (req, res) => {
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
 
     // Fetch the project by ID, including soft-deleted ones
     const project = await Project.findByPk(id, { paranoid: false });
 
-    
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
@@ -108,7 +104,6 @@ export const restoreProject = async (req, res) => {
 
     res.status(200).json({ message: "Project restored successfully" });
   } catch (err) {
-    console.error("Error restoring project:", err);
     res.status(500).json({ message: "Server error", error: err });
   }
 };

@@ -4,7 +4,6 @@ import { adminMiddleware } from "../middlewares/authMiddleware.js";
 import {
   validateSignup,
   validateLogin,
-  validateRegisterUser,
 } from "../middlewares/validationMiddleware.js";
 
 const router = express.Router();

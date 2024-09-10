@@ -98,16 +98,14 @@ export const updateUserById = async (req, res) => {
     await user.update(updatedData);
 
     // Respond with updated user details
-    res.status(200)
-      .json({ 
-        message: "User updated successfully", 
-        user: user 
+    res.status(200).json({
+      message: "User updated successfully",
+      user: user,
     });
   } catch (error) {
-    res.status(500)
-    .json({
-       message: "Server error", 
-       error 
+    res.status(500).json({
+      message: "Server error",
+      error,
     });
   }
 };
@@ -123,7 +121,7 @@ export const deleteUser = async (req, res) => {
       });
     }
     // Soft delete the user
-    await user.update({ deletedAt: new Date() }); 
+    await user.update({ deletedAt: new Date() });
     res.status(200).json({
       success: true,
       message: "User soft deleted successfully",
@@ -162,13 +160,10 @@ export const permanentDeleteUser = async (req, res) => {
       message: "User permanently deleted successfully",
     });
   } catch (error) {
-    console.error("Error permanently deleting user:", error);
-    res
-    .status(500)
-    .json({ 
-      success: false, 
-      message: "Server error", 
-      error 
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error,
     });
   }
 };
@@ -208,7 +203,7 @@ export const restoreUser = async (req, res) => {
 export const assignRole = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { roleId } = req.body; 
+    const { roleId } = req.body;
     // Find the user
     const user = await User.findByPk(userId);
     if (!user) {
@@ -233,7 +228,6 @@ export const assignRole = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Role assigned successfully", user });
   } catch (error) {
-    console.error("Error assigning role to user:", error);
     res.status(500).json({ success: false, message: "Server error", error });
   }
 };

@@ -1,11 +1,11 @@
-import Joi from 'joi';
+import Joi from "joi";
 
 // Add your Joi validation schemas here
 export const validateSignup = (req, res, next) => {
   const schema = Joi.object({
     username: Joi.string().required(),
     email: Joi.string().email().required(),
-    password: Joi.string().min(6).required()
+    password: Joi.string().min(6).required(),
   });
   const { error } = schema.validate(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message });
@@ -15,7 +15,7 @@ export const validateSignup = (req, res, next) => {
 export const validateLogin = (req, res, next) => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
-    password: Joi.string().min(6).required()
+    password: Joi.string().min(6).required(),
   });
   const { error } = schema.validate(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message });
@@ -27,7 +27,7 @@ export const validateRegisterUser = (req, res, next) => {
     username: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
-    role: Joi.string().valid('Admin', 'Manager', 'Employee').required()
+    role: Joi.string().valid("Admin", "Manager", "Employee").required(),
   });
   const { error } = schema.validate(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message });
@@ -39,7 +39,7 @@ export const validateCreateUser = (req, res, next) => {
     username: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
-    role: Joi.string().valid('Admin', 'Manager', 'Employee').required()
+    role: Joi.string().valid("Admin", "Manager", "Employee").required(),
   });
   const { error } = schema.validate(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message });
@@ -51,8 +51,9 @@ export const validateUpdateUser = (req, res, next) => {
     username: Joi.string(),
     email: Joi.string().email(),
     password: Joi.string().min(6),
-    role: Joi.string().valid('Admin', 'Manager', 'Employee')
-  }).or('username', 'email', 'password', 'role');
+    role: Joi.string().valid("Admin", "Manager", "Employee"),
+  }).or("username", "email", "password", "role");
+  
   const { error } = schema.validate(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message });
   next();

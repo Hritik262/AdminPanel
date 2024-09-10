@@ -8,41 +8,39 @@ export const signup = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Check if the "admin" role exists, create if not
+    // Check if the admin role exists
     let adminRole = await Role.findOne({ where: { name: "admin" } });
     if (!adminRole) {
-      adminRole = await Role.create({ name: "admin" }); // Create admin role if it doesn't exist
+      adminRole = await Role.create({ name: "admin" });
     }
 
-    // Check if the "user" role exists, create if not
+    // Check if the user role exists
     let userRole = await Role.findOne({ where: { name: "user" } });
     if (!userRole) {
-      userRole = await Role.create({ name: "user" }); // Create user role if it doesn't exist
+      userRole = await Role.create({ name: "user" });
     }
 
-    // Check if an admin already exists
     const adminCount = await User.count({ where: { roleId: adminRole.id } });
 
     let roleId;
 
     if (adminCount === 0) {
-      // No admin exists, assign this user the "admin" role
+      // No admin exists assign this user the "admin" role
       roleId = adminRole.id;
     } else {
-      // Admin already exists, prevent new admin signup
+      // Admin already exists
       return res.status(400).json({
         message: "Admin already exists. Only one admin is allowed.",
       });
     }
 
-    // Hash the password before saving it
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create the new user with the "admin" role
     const newUser = await User.create({
       username,
       email,
-      password: hashedPassword, // Save the hashed password
+      password: hashedPassword,
       roleId,
     });
 

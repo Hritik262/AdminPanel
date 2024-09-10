@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
-import Role from "../models/role.js"; // Import the Role model
-import User from "../models/user.js"; // Import the User model
+import Role from "../models/role.js"; 
+import User from "../models/user.js";
+
 export const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1]; // Extract token from Authorization header
 
@@ -67,8 +68,7 @@ export const adminManagerMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: "Access denied" });
     }
 
-    const userRole = await Role.findByPk(user.roleId);
-    console.log("Fetched User Role:", userRole);
+    const userRole = await Role.findByPk(user.roleId);;
 
     if (userRole.name === "admin" || userRole.name === "manager") {
       next();
@@ -76,7 +76,6 @@ export const adminManagerMiddleware = async (req, res, next) => {
       return res.status(403).json({ message: "Access denied" });
     }
   } catch (error) {
-    console.error("Error in adminManagerMiddleware:", error);
     return res.status(500).json({ message: "Server error", error });
   }
 };
