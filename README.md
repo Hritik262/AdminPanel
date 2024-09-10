@@ -27,7 +27,6 @@ Create a backend API using **Node.js**, **Express**, and **PostgreSQL** to suppo
 - Ability to design database schemas/models.
 - Use of middleware for authentication, access control, and validations.
 - Implementation of authentication using JWT tokens.
-- Understanding of SQL concepts, including the use of JOINS.
 - Ability to comprehend and execute the requirements of a given task.
 
 ## Task Requirements
@@ -86,11 +85,6 @@ Below is a breakdown of the permissions and restrictions for each user role. Eac
 
 ## Routes and Resources
 
-This section outlines the expected routes in the application and specifies which roles have access to each route.
-
-**Note:** Role-based access to a route does not necessarily guarantee that data will be returned or modified. Additional conditions may apply, restricting users from retrieving or updating certain data.
-
-You are free to modify the path of these routes or create new ones as needed. However, we expect all necessary routes to be implemented with correct authentication, access privileges, and conditions.
 
 ### Authentication Routes
 
@@ -105,7 +99,6 @@ You are free to modify the path of these routes or create new ones as needed. Ho
 - **Get User by ID (GET /users/:id):** Accessible by all users. Retrieves the details of a specific user.
 - **Update User (PUT /users/:id):** Accessible by Admin. Updates the information of a specific user.
 - **Delete User (DELETE /users/:id):** Accessible by Admin. Soft deletes a user.
-- **Permanent Delete User (DELETE /users/permanent/:id):** Accessible by Admin. Permanently deletes a user. *(OPTIONAL)*
 - **Restore User (PATCH /users/restore/:id):** Accessible by Admin. Restores a soft-deleted user.
 
 ### Role Management Routes
@@ -125,23 +118,3 @@ You are free to modify the path of these routes or create new ones as needed. Ho
 ### Audit Logs Routes
 
 - **Get Audit Logs (GET /audit-logs):** Accessible by Admin. Retrieves a list of audit logs that track important actions within the system.
-
-## Basic Schema Examples
-
-Below are some example database models. You are free to modify these or create new models based on your understanding of the project and your specific needs.
-
-**Note:** These examples are not intended to represent the final schema for the application.
-
-### User Schema
-
-
-```postgres
-User {
-  id: string;
-  username: string;
-  email: string;
-  password: string; // Hashed password
-  roleId: string; // Reference to the role from the Role table
-  createdAt: Date;
-  updatedAt: Date;
-}
