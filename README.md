@@ -9,7 +9,8 @@
 - **Sequelize ORM**
 - **JWT (jsonwebtoken)**
 - **Joi**
-- 
+
+  
 ## Objective
 
 Create a backend API using **Node.js**, **Express**, and **PostgreSQL** to support an **Admin Panel** with the following features:
