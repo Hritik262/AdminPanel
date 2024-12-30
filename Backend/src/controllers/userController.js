@@ -200,34 +200,41 @@ export const restoreUser = async (req, res) => {
 export const assignRole = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { roleId } = req.body;
-    // Find the user
+    const { role } = req.body;
+
     const user = await User.findByPk(userId);
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: "User not found", 
+      });
     }
 
-    // Find the role
-    const role = await Role.findByPk(roleId);
-    if (!role) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Role not found" });
+    const roleInstance = await Role.findOne({ where: { name: role } }); 
+    if (!roleInstance) {
+      return res.status(404).json({
+        success: false,
+        message: "Role not found", 
+      });
     }
 
-    // Assign the role to the user
-    user.roleId = roleId;
+    user.roleId = roleInstance.id;
     await user.save();
 
-    res
-      .status(200)
-      .json({ success: true, message: "Role assigned successfully", user });
+    res.status(200).json({
+      success: true,
+      message: "Role assigned successfully", 
+      user,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error", error });
+    res.status(500).json({
+      success: false,
+      message: "Server error", 
+      error,
+    });
   }
 };
+
 
 // Revoke role from user (Admin only)
 export const revokeRole = async (req, res) => {
