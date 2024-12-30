@@ -8,19 +8,16 @@ export const createUser = async (req, res) => {
     const { username, email, password, role } = req.body;
 
     let userRole;
+    
     if (role) {
-      // Check if the provided role exists in the database
       userRole = await Role.findOne({ where: { name: role } });
       if (!userRole) {
-        // Optionally, create the role if it doesn't exist
         userRole = await Role.create({ name: role });
       }
     } else {
-      // Assign default "user" role if no role is provided
       userRole = await Role.findOne({ where: { name: "user" } });
     }
 
-    // Hash the password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create the new user

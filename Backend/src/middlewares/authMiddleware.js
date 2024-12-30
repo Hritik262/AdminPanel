@@ -3,7 +3,7 @@ import Role from "../models/role.js";
 import User from "../models/user.js";
 
 export const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1]; 
+  const token = req.cookies?.token || req.headers.authorization?.split(" ")[1]; 
 
   if (!token) {
     return res.status(401).json({ message: "Authentication token required" });
@@ -14,14 +14,14 @@ export const authMiddleware = (req, res, next) => {
       return res.status(401).json({ message: "Invalid or expired token" });
     }
 
-    req.user = decoded; // Attach decoded token to request
+    req.user = decoded;
     next();
   });
 };
 
 export const adminMiddleware = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
+    const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
     if (!token) {
       return res.status(401).json({ message: "No token provided" });
     }
@@ -54,7 +54,7 @@ export const adminMiddleware = async (req, res, next) => {
 
 export const adminManagerMiddleware = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
+    const authHeader = req.cookies?.token || req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ message: "No token provided" });
     }

@@ -22,7 +22,6 @@ export const signup = async (req, res) => {
       // No admin exists assign this user the "admin" role
       roleId = adminRole.id;
     } else {
-      // Admin already exists
       return res.status(400).json({
         message: "Admin already exists. Only one admin is allowed.",
       });
@@ -54,20 +53,16 @@ export const login = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res
-      .status(401)
-      .json({
-         message: "Invalid credentials"
-         });
+      return res.status(401).json({
+        message: "Invalid credentials",
+      });
     }
 
     const token = jwt.sign(
-      { userId: user.id, 
-        role: user.roleId 
-      },
+      { userId: user.id, role: user.roleId },
       process.env.JWT_SECRET,
-      { 
-        expiresIn: "1h" 
+      {
+        expiresIn: "1h",
       }
     );
 

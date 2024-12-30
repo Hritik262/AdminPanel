@@ -4,8 +4,10 @@ import userRoutes from "./src/routes/userRoutes.js";
 import projectRoutes from "./src/routes/projectRoutes.js";
 import auditLogRoutes from "./src/routes/auditLogRoutes.js";
 import sequelize from "./src/config/database.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
+app.use(cookieParser());
 
 app.use(express.json());
 
