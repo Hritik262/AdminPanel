@@ -1,7 +1,7 @@
 import User from "./user.js";
 import Role from "./role.js";
 import Project from "./project.js";
-import AuditLog from "./auditLog.js";
+import {AuditLog} from "./auditLog.js";
 
 // Model relationships
 Role.hasMany(User);

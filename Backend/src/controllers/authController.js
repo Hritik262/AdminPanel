@@ -3,7 +3,7 @@ import Role from "../models/role.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// Signup function to create an Admin user (one-time setup)
+// Signup function to create an Admin user
 export const signup = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -12,12 +12,6 @@ export const signup = async (req, res) => {
     let adminRole = await Role.findOne({ where: { name: "admin" } });
     if (!adminRole) {
       adminRole = await Role.create({ name: "admin" });
-    }
-
-    // Check if the user role exists
-    let userRole = await Role.findOne({ where: { name: "user" } });
-    if (!userRole) {
-      userRole = await Role.create({ name: "user" });
     }
 
     const adminCount = await User.count({ where: { roleId: adminRole.id } });
@@ -60,13 +54,21 @@ export const login = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res
+      .status(401)
+      .json({
+         message: "Invalid credentials"
+         });
     }
 
     const token = jwt.sign(
-      { userId: user.id, role: user.roleId },
+      { userId: user.id, 
+        role: user.roleId 
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { 
+        expiresIn: "1h" 
+      }
     );
 
     res.cookie("token", token, { httpOnly: true });

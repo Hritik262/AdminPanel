@@ -1,7 +1,5 @@
 import Project from "../models/project.js";
-import User from "../models/user.js";
-import jwt from "jsonwebtoken";
-
+  
 // Create a new project
 export const createProject = async (req, res) => {
   try {

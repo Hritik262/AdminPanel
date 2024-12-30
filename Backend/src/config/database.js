@@ -5,7 +5,7 @@ dotenv.config();
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: "postgres",
-  protocol: "postgres",
+  protocol: "postgres",  
   dialectOptions: {
     ssl: {
       require: true,
@@ -15,7 +15,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   logging: false,
 });
 
-// Test the database connection
+//database connection
 (async () => {
   try {
     await sequelize.authenticate();

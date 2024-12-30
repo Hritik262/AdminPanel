@@ -1,6 +1,5 @@
 import Joi from "joi";
-
-// Add your Joi validation schemas here
+ 
 export const validateSignup = (req, res, next) => {
   const schema = Joi.object({
     username: Joi.string().required(),
